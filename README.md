@@ -1,215 +1,145 @@
-![E.ON EBC RWTH Aachen University](./img/EBC_Logo.png)
+﻿![E.ON EBC RWTH Aachen University](./img/EBC_Logo.png)
 
 # DistrictGenerator
 
 [![License](http://img.shields.io/:license-mit-blue.svg)](http://doge.mit-license.org)
 [![Documentation](https://rwth-ebc.github.io/districtgenerator/master/docs/doc.svg)](https://rwth-ebc.github.io/districtgenerator/master/docs/README.html)
 
-Through the DistrictGenerator, we introduce an python-based open-source tool aimed at urban planners, energy suppliers,
-housing associations, engineering firms, architectural professionals, as well as academic and research institutions. 
-This tool furnishes crucial insights into energy demands, pivotal for the effective design and operation of 
-neighborhoods energy systems. Consequently, users can discern actionable measures to harmonize energy supply.
-The DistrictGenerator offers a pioneering approach by mapping entire urban 
-building stocks in neighborhood models for automated load profile calculations and dimensioning of distributed 
-energy resources. By integrating several open-source data bases and tools like [TEASER](https://github.com/RWTH-EBC/TEASER) 
-and [richardsonpy](https://github.com/RWTH-EBC/richardsonpy).
+DistrictGenerator 是一个基于 Python 的开源工具，面向城市规划人员、能源供应商、住房协会、工程与建筑专业团队，以及科研机构。该工具可为社区能源系统的设计与运行提供关键的负荷需求信息，帮助用户识别并评估供能协同措施。
 
-The DistrictGenerator is being developed at [RWTH Aachen University, E.ON Energy
-Research Center, Institute for Energy Efficient Buildings and Indoor
-Climate](https://www.ebc.eonerc.rwth-aachen.de/cms/~dmzz/E-ON-ERC-EBC/?lidx=1).
+DistrictGenerator 的核心创新在于：将完整城市建筑存量映射为社区模型，并自动计算建筑负荷曲线与分布式能源系统规模。工具集成了多个开源数据库与工具，例如 [TEASER](https://github.com/RWTH-EBC/TEASER) 与 [richardsonpy](https://github.com/RWTH-EBC/richardsonpy)。
 
-## General Motivation
+本项目由 [RWTH Aachen University, E.ON Energy Research Center, Institute for Energy Efficient Buildings and Indoor Climate](https://www.ebc.eonerc.rwth-aachen.de/cms/~dmzz/E-ON-ERC-EBC/?lidx=1) 开发维护。
 
-In the early stages of neighborhood planning, crucial data such as demand profiles of electricity, heating, 
-domestic hot water, and occupancy profiles are often not available. The absence of this data hampers 
-accurate evaluations of energy systems in districts. The DistrictGenerator seeks to advance the applicability 
-of sustainable, cross-sectoral energy systems in neighborhoods, with a specific emphasis on exploiting synergy 
-potentials among buildings of diverse usage structures through integrated concepts. We summarize the key contributions 
-of the DistrictGenerator as follows:
+## 研究动机
 
-- An open-source tool with minimal input requirements. Leveraging pre-set elements and default values of temporally 
-  resolved demand profiles, as well as decentralized heat generator sizing conforming to DIN standards.
+在社区规划早期阶段，电力、采暖、生活热水与占用等关键时序数据通常缺失，导致能源系统评估不准确。DistrictGenerator 旨在降低建模门槛，提升社区级跨能种系统分析的可用性，尤其强调不同建筑用途之间的协同潜力。主要贡献包括：
 
-- The tool enables the bottom-up representation of entire urban structures through neighborhood models, affording a 
-  sufficiently detailed analysis foundation.
+- 开源且低输入门槛：依托预设参数与默认值，快速生成时序负荷，并按标准完成分散式热源初步定容。
+- 支持自下而上的城市结构建模：可在社区尺度构建足够细致的分析模型。
+- 支持运营优化与 KPI 输出：便于比较不同技术组合与渗透率下的社区供能方案。
 
-- Facilitation of central operational optimization and presentation of analytical results and key performance 
-  indicators. This supports the examination of various neighborhood types and supply scenarios concerning technology 
-  selection and penetrations. We thereby create a platform for early-stage comparison of neighborhood concepts 
-  with the flexibility of selecting different variants, given the tool's rapid recalculations.
+## 快速开始
 
+### 安装 DistrictGenerator
 
-## Getting started
+先克隆仓库：
 
-### Install the DistrictGenerator
-
-To install, first clone this repository with
-```
+```bash
 git clone https://github.com/RWTH-EBC/districtgenerator
 ```
-and secondly run:
+
+再安装项目：
+
+```bash
+pip install -e .
 ```
-pip install -e districtgenerator
-```
 
-Once you have installed the DistrictGenerator, you can check the [examples](docs/EXAMPLES.md) 
-to learn how to use the different components.
+安装完成后，可参考 [examples](docs/EXAMPLES.md) 学习各模块用法。
 
-### Minimum manual required input data
+### 最小必需输入数据
 
-To generate your district, you need to know some information about its buildings. 
-The minimal input data set was defined following the [TABULA archetype approach](https://webtool.building-typology.eu/#bm):
+要生成社区模型，至少需要每栋建筑的基础信息。最小输入集依据 [TABULA archetype approach](https://webtool.building-typology.eu/#bm) 定义：
 
-- id: building ID (just numerate the buildings)
-- building: building type (SFH = single family house, TH = terraced house, MFH = multi family house, AB = apartment block, OB = office building, SC = school, GS = grocery store, RE = restaurant, MFH+GR = multi family house + grocery store, AB+GR = apartment block + grocery store, MFH+RE = multi family house + restaurant, AB+RE = apartment block + restaurant)
-- year: construction year (the calendar year in which the building was constructed)
-- construction_type: building thermal mass (0 = lightweight construction, 1 = medium construction, 2 = heavyweight construction)
-- retrofit: retrofit state according to TABULA (0: existing state, 1: usual refurbishment, 2: advanced refurbishment)
-- area: reference floor area (given in square meters)
-- night_setback: night temperature setback (0 = no night setback, 1 = with night setback)
-- heating: selected heat generator type (HP = heat pump, EH = electric heating, CHP = combined heat and power, FC = fuel cell, BOI = boiler, STC = solar thermal collector, heat_grid = district heating)
-- EV: electric vehicle share - fraction between 0 and 1 representing the proportion of electric vehicles in the building's total vehicle inventory
-- fTES: thermal energy storage size in liters per kW heating capacity of the heat generation system
-- fBAT: battery storage size in Wh per W of PV system power (Wh/W_PV)
-- fPV: fraction of total roof area covered with photovoltaics (the side with azimuth angle gammaPV, based on TABULA building typology roof area data)
-- fSTC: fraction of roof area equipped with solar thermal collectors (based on TABULA building typology roof area data)
-- gammaPV: azimuth angle of roof side 1 in degrees (0° = south-facing orientation)
-- EV_charging: electric vehicle charging behavior (bidirectional = charging and discharging with use as electricity storage, on-demand = charging as needed, intelligent = optimized charging)
+- `id`：建筑 ID（连续编号即可）
+- `building`：建筑类型（`SFH`、`TH`、`MFH`、`AB`、`OB`、`SC`、`GS`、`RE`、`MFH+GR`、`AB+GR`、`MFH+RE`、`AB+RE`）
+- `year`：建造年份
+- `construction_type`：建筑热质量（`0` 轻型、`1` 中型、`2` 重型）
+- `retrofit`：TABULA 改造等级（`0` 现状、`1` 常规改造、`2` 深度改造）
+- `area`：参考建筑面积（m²）
+- `night_setback`：夜间温度回退（`0` 否、`1` 是）
+- `heating`：供热设备（`HP`、`EH`、`CHP`、`FC`、`BOI`、`STC`、`heat_grid`）
+- `EV`：电动车占比（0 到 1）
+- `fTES`：热储能规模（L/kW，按供热设备容量）
+- `fBAT`：电池规模（Wh/W_PV）
+- `fPV`：屋顶光伏覆盖比例
+- `fSTC`：屋顶太阳能热利用覆盖比例
+- `gammaPV`：屋顶方位角（度，`0°` 表示朝南）
+- `EV_charging`：充电策略（`bidirectional`、`on-demand`、`intelligent`）
 
-The example.csv file can be used as [template](../districtgenerator/data/scenarios/example.csv).
+可使用示例模板：`districtgenerator/data/scenarios/example.csv`。
 
-### Additional input data
+### 其他可选输入
 
-In the folder [data](https://github.com/RWTH-EBC/districtgenerator/tree/JOSS_submission/districtgenerator/data) 
-further data can be found. Default values are already stored there.
-Optionally, the following data can be changed to:
-- design_building_data.json: Maximum and minimum indoor temperature and the room ventilation rate
-- site_data.json: Test referece year and its conditions, 
-- time_data.json: The time resolution of the profiles 
+在 [data](https://github.com/RWTH-EBC/districtgenerator/tree/JOSS_submission/districtgenerator/data) 目录中提供了大量默认数据。以下内容可按需求调整：
 
-The data in the following files must not be changed because they are fixed parameters and external data:
-- design_weather_data.json: Contains the 16 German climate zones of the DWD. Climate zones are large areas 
-in which the main characteristics of the climate are the same. Each zone is represented by a city.
-- physics_data.json
-- dhw_stochstical.xlsx
+- `design_building_data.json`：室内温度上下限、通风率
+- `site_data.json`：测试参考年与站点条件
+- `time_data.json`：时间分辨率
 
-The weather data can be found in [weather](https://github.com/RWTH-EBC/districtgenerator/tree/JOSS_submission/districtgenerator/data/weather).
+以下文件为固定参数或外部数据，通常不建议修改：
 
-## Structure of the DistrictGenerator
+- `design_weather_data.json`：DWD 德国 16 个气候区数据
+- `physics_data.json`
+- `dhw_stochstical.xlsx`
+
+天气数据位于 [weather](https://github.com/RWTH-EBC/districtgenerator/tree/JOSS_submission/districtgenerator/data/weather)。
+
+## DistrictGenerator 结构
 
 ![Library Structure](img/Struktur_Quartiersgenerator.png)
 
-## Workflow of the DistrictGenerator
+## DistrictGenerator 工作流程
 
-The district generator integrates multiple open-source tools and databases. 
-The figure below visualizes the dependencies of external tools and data with internal 
-functions. The user input for the parameterization of a neighborhood consists 
-of a minimum of data. First, the user enters the number of buildings and basic 
-information about each building, namely the building type, year of construction, 
-retrofit level, and net floor area. The number of buildings to be calculated is 
-not limited by the program. Optionally, the site of the district, the time 
-resolution of the profiles and the test reference year (TRY) for weather data 
-can be modified.
+该工具将多个开源工具和数据库整合为统一流程。用户输入最小化建筑信息后，系统会逐步完成环境与建筑参数补全，并生成时序负荷：
+
+1. 输入社区建筑数量与基础信息（类型、建造年代、改造等级、面积等）
+2. 可选修改站点位置、时间分辨率、气象参考年
+3. 使用 [TEASER](https://rwth-ebc.github.io/TEASER/main/docs/index.html) 结合 [TABULA WebTool](https://webtool.building-typology.eu/#bm) 完成建筑几何与材料参数补全
+4. 使用 [richardsonpy](https://github.com/RWTH-EBC/richardsonpy) 生成随机占用与用电曲线
+5. 基于 pyCity 相关方法生成生活热水曲线
+6. 基于 DIN EN ISO 13790:2008-09 的 5R1C 简化模型计算采暖曲线
 
 ![Library Structure](img/Workflow_DistrictGenerator.png)
 
-To obtain a fully parameterized building model, the [TEASER tool](https://rwth-ebc.github.io/TEASER/main/docs/index.html) 
-performs a data enrichment with data from the [TABULA WebTool](https://webtool.building-typology.eu/#bm) 
-that provides statistical and normative information about the building stock. 
-Finally, the TEASER python package determines the geometry and material properties of the buildings. 
-As the TABULA WebTool defines archetypal building properties for type, age class and retrofit level, the 
-generated districts are composed of representative buildings, making them ideal 
-for representative analyses or scalability studies. The number of occupants within a dwelling is randomly determined, 
-but within defined limits (1 to 4 occupants for each flat in multi-family houses and apartment block, 
-2-5 occupants in single-family houses and terraced houses), and serves as input data 
-for the [richardsonpy tool](https://github.com/RWTH-EBC/richardsonpy) to calculate stochastically the time-resolved occupancy profiles. 
-Furthermore, the [Stromspiegel](https://www.stromspiegel.de/fileadmin/ssi/stromspiegel/Downloads/Stromspiegel-2019-web.pdf) 
-provides statistical data on annual electricity consumption in German dwellings. Annual consumption
-is assigned to each dwelling with a possible standard deviation of 10%, upon which the time-resolved electricity profile is
-created using the stochastic profile generator richardsonpy again. The electricity and occupancy
-profiles serve as input for a time-resolved internal gain calculation. Additionally, the occupancy
-profiles are needed for domestic hot water profile generation, for which functions from the
-[pyCity tool](https://github.com/RWTH-EBC/pyCity/tree/master) 
-are utilized. Finally, the static building data, as well as the time-resolved weather and internal gain data, 
-are included in the space heating profile generation. These are computed by means of a 5R1C-substitution model 
-according to DIN EN ISO 13790:2008-09 using the simplified hourly method.
+## 输出结果
 
-## Final output of the DistrictGenerator
+DistrictGenerator 可输出每栋建筑的时序需求文件（Excel/CSV 工作流），包括：
 
-Including all these tools the DistrictGenerator gives as output time-resolved demand profiles 
-as csv. file for each building in the neighborhood. The output contains: 
+- `heat`：空间采暖需求
+- `dhw`：生活热水需求
+- `elec`：照明与家电用电需求
+- `gains`：内部得热
+- `occ`：占用曲线
 
-- heat: space heating demand
-- dhw: domestic hot water demand
-- elec: electricity demand for lighting and electric household devices
-- gains: internal gains from persons, lighting and electric household devices
-- occ: occupancy profile
+默认结果保存在 `results/demands` 目录，功率单位为 W。
 
-All csv files are finally saved in the [demands](https://github.com/RWTH-EBC/districtgenerator/tree/JOSS_submission/districtgenerator/results/demands)
-folder. The unit of the demand profiles is watt.
+## 示例与功能测试
 
+安装后可先查看 [examples](docs/EXAMPLES.md)。
 
-## Running examples for functional testing
+若要验证工具可执行性，可运行 `tests/test_examples.py`。该功能测试会串行执行示例流程并检查关键输出。
 
-Once you have installed the DistrictGenerator, you can check the [examples](docs/EXAMPLES.md) 
-to learn how to use the different components. 
+## 如何贡献
 
-To test the tool's executability, run [test_examples.py](https://github.com/RWTH-EBC/districtgenerator/tree/JOSS_submission/tests)  in the tests folder. 
-This functional testing checks the entire chain of the tool, from data input and 
-initialization to the output of the calculated profiles. It does not correspond to a 
-test of the functional units of the entire process. This  functional testing is based 
-on the examples automatically executed one after another.
+欢迎通过 Issue 反馈问题、讨论需求或提交改进。
 
-## How to contribute
+- 提问或报告问题：请在仓库中创建 Issue
+- 提交功能：请创建 Pull Request 并指派评审
 
-The documentation and examples should be understandable and the code bug-free. 
-As all users have different backgrounds, you may not understand everything or encounter bugs.
-If you have questions, want to contribute new features or fix bugs yourself,
-please [raise an issue here](https://github.com/RWTH-EBC/districtgenerator/issues/new).
+## 作者
 
-If you wrote a new feature, create a pull request and assign 
-a reviewer before merging. Once review is finished, you can merge.
-
-## Authors
-
-* [Joel Schölzel](https://www.ebc.eonerc.rwth-aachen.de/cms/e-on-erc-ebc/das-institut/mitarbeiter/digitale-energie-quartiere/~obome/schoelzel-joel/?allou=1) (corresponding)
-* [Tobias Beckhölter](https://www.ebc.eonerc.rwth-aachen.de/cms/E-ON-ERC-EBC/Das-Institut/Mitarbeiter/Team6/~scaj/Beckhoelter-Tobias/)
-* [Carla Wüller](https://www.ebc.eonerc.rwth-aachen.de/cms/E-ON-ERC-EBC/Das-Institut/Mitarbeiter/Digitale-Energie-Quartiere/~beoyus/Wueller-Carla/)
-* [Rawad Hamze](https://www.ebc.eonerc.rwth-aachen.de/cms/e-on-erc-ebc/das-institut/mitarbeiter/team6/~birwyf/hamze-rawad/?lidx=1)
+- [Joel Schoelzel](https://www.ebc.eonerc.rwth-aachen.de/cms/e-on-erc-ebc/das-institut/mitarbeiter/digitale-energie-quartiere/~obome/schoelzel-joel/?allou=1)（通讯作者）
+- [Tobias Beckhoelter](https://www.ebc.eonerc.rwth-aachen.de/cms/E-ON-ERC-EBC/Das-Institut/Mitarbeiter/Team6/~scaj/Beckhoelter-Tobias/)
+- [Carla Wueller](https://www.ebc.eonerc.rwth-aachen.de/cms/E-ON-ERC-EBC/Das-Institut/Mitarbeiter/Digitale-Energie-Quartiere/~beoyus/Wueller-Carla/)
+- [Rawad Hamze](https://www.ebc.eonerc.rwth-aachen.de/cms/e-on-erc-ebc/das-institut/mitarbeiter/team6/~birwyf/hamze-rawad/?lidx=1)
 
 ## Alumni
 
-* Sarah Henn
+- Sarah Henn
 
-## Reference
+## 参考文献
 
-We presented or applied the library in the following publications:
+- J. Schoelzel, S. Henn, R. Streblow, D. Mueller. Evaluation of Energy Sharing on a Local Energy Market Through Comparison of Energy Management Techniques. 36th International Conference on Efficiency, Cost, Optimization, Simulation and Environmental Impact of Energy Systems. https://doi.org/10.52202/069564-0307
+- J. Schoelzel, T. Beckhoelter, S. Henn, C. Wueller, R. Streblow, D. Mueller. Districtgenerator: A Novel Open-Source Webtool to Generate Building-Specific Load Profiles and Evaluate Energy Systems of Residential Districts. 37th International Conference on Efficiency, Cost, Optimization, Simulation and Environmental Impact of Energy Systems.
+- C. Wueller, J. Schoelzel, R. Streblow, D. Mueller. Optimizing Local Energy Trading in Residential Neighborhoods: A Price Signal Approach in Local Energy Markets. 37th International Conference on Efficiency, Cost, Optimization, Simulation and Environmental Impact of Energy Systems.
 
-- J. Schölzel, S. Henn, R. Streblow, D. Müller. Evaluation of Energy Sharing on a 
-  Local Energy Market Through Comparison of Energy Management Techniques. 36th International 
-  Conference on Efficiency, Cost, Optimization, Simulation and Environmental Impact of Energy Systems.
-  https://doi.org/10.52202/069564-0307
+## 许可证
 
-- J. Schölzel, T. Beckhölter, S. Henn, C.Wüller, R. Streblow, D. Müller.
-  Districtgenerator: A Novel Open-Source Webtool to Generate Building-Specific Load 
-  Profiles and Evaluate Energy Systems of Residential Districts. 37th International 
-  Conference on Efficiency, Cost, Optimization, Simulation and Environmental Impact of 
-  Energy Systems.
-  
-- C. Wüller, J. Schölzel, R. Streblow, D. Müller. Optimizing Local Energy Trading in Residential Neighborhoods:A Price Signal Approach 
-  in Local Energy Markets. 37th International Conference on Efficiency, Cost, Optimization, 
-  Simulation and Environmental Impact of Energy Systems.
+DistrictGenerator 由 RWTH Aachen University, E.ON Energy Research Center, Institute for Energy Efficient Buildings and Indoor Climate 按 [MIT License](docs/about/LICENSE.md) 发布。
 
-## License
+## 致谢
 
-The DistrictGenerator is released by RWTH Aachen University, E.ON Energy
-Research Center, Institute for Energy Efficient Buildings and Indoor Climate,
-under the [MIT License](docs/about/LICENSE.md).
-
-## Acknowledgements
-
-The districtgenerator has been developed within the public funded project 
-"BF2020 Begleitforschung ENERGIEWENDEBAUEN - Modul Quartiere" (promotional reference: 03EWB003B) 
-and with financial support by BMWK (German Federal Ministry for Economic Affairs and Climate Action).
+DistrictGenerator 在公开资助项目 “BF2020 Begleitforschung ENERGIEWENDEBAUEN - Modul Quartiere”（资助编号：03EWB003B）框架下开发，并获得德国 BMWK（联邦经济与气候保护部）支持。
 
 <img src="https://www.innovation-beratung-foerderung.de/INNO/Redaktion/DE/Bilder/Titelbilder/titel_foerderlogo_bmwi.jpg?__blob=normal" width="200">
