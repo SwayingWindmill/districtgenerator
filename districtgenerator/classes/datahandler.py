@@ -403,29 +403,32 @@ class Datahandler:
         elif self.site["TRYYear"] == "TRY2045":
             self.calendar["holidays"] = self.get_holidays(country_code="DE", year=2045)
 
-        # interpolate input data to achieve required data resolution
-        # transformation from values for points in time to values for time intervals
-        self.site["SunDirect"] = np.interp(np.arange(0, self.time["dataLength"] + 1, self.time["timeResolution"]),      # Direct horizontal radiation
-                                           np.arange(0, self.time["dataLength"] + 1, self.time["dataResolution"]),
-                                           temp_sunDirect)[0:-1]
-        self.site["SunDiffuse"] = np.interp(np.arange(0, self.time["dataLength"] + 1, self.time["timeResolution"]),     # Diffuse horizontal radiation
-                                            np.arange(0, self.time["dataLength"] + 1, self.time["dataResolution"]),
-                                            temp_sunDiff)[0:-1]
-        self.site["T_e"] = np.interp(np.arange(0, self.time["dataLength"] + 1, self.time["timeResolution"]),
-                                     np.arange(0, self.time["dataLength"] + 1, self.time["dataResolution"]),
-                                     temp_tempe)[0:-1]
-        self.site["wind_speed"] = np.interp(np.arange(0, self.time["dataLength"] + 1, self.time["timeResolution"]),
-                                            np.arange(0, self.time["dataLength"] + 1, self.time["dataResolution"]),
-                                            temp_wind)[0:-1]
-        self.site["r_humidity"] = np.interp(np.arange(0, self.time["dataLength"] + 1, self.time["timeResolution"]),
-                                            np.arange(0, self.time["dataLength"] + 1, self.time["dataResolution"]),
-                                            temp_rhum)[0:-1]
-        self.site["pressure"] = np.interp(np.arange(0, self.time["dataLength"] + 1, self.time["timeResolution"]),
-                                            np.arange(0, self.time["dataLength"] + 1, self.time["dataResolution"]),
-                                            temp_pre)[0:-1]
-        self.site["ssw"] = np.interp(np.arange(0, self.time["dataLength"] + 1, self.time["timeResolution"]),
-                                        np.arange(0, self.time["dataLength"] + 1, self.time["dataResolution"]),
-                                        1 - np.clip(temp_ssw, 0, 8) / 8.0)[0:-1]
+        # Interpolate annual weather inputs to the required simulation resolution.
+        # The source TRY files always cover a full year, while the requested output
+        # horizon may be shorter (e.g. 7 days). Therefore the source timeline must
+        # be derived from the loaded weather data length, not from dataLength.
+        source_timestamps = np.arange(
+            0,
+            len(temp_sunDirect) * self.time["dataResolution"],
+            self.time["dataResolution"]
+        )
+        target_timestamps = np.arange(
+            0,
+            self.time["dataLength"] + 1,
+            self.time["timeResolution"]
+        )
+
+        self.site["SunDirect"] = np.interp(target_timestamps, source_timestamps, temp_sunDirect)[0:-1]
+        self.site["SunDiffuse"] = np.interp(target_timestamps, source_timestamps, temp_sunDiff)[0:-1]
+        self.site["T_e"] = np.interp(target_timestamps, source_timestamps, temp_tempe)[0:-1]
+        self.site["wind_speed"] = np.interp(target_timestamps, source_timestamps, temp_wind)[0:-1]
+        self.site["r_humidity"] = np.interp(target_timestamps, source_timestamps, temp_rhum)[0:-1]
+        self.site["pressure"] = np.interp(target_timestamps, source_timestamps, temp_pre)[0:-1]
+        self.site["ssw"] = np.interp(
+            target_timestamps,
+            source_timestamps,
+            1 - np.clip(temp_ssw, 0, 8) / 8.0
+        )[0:-1]
 
         self.site["SunTotal"] = self.site["SunDirect"] + self.site["SunDiffuse"] # This is the GHI (Global Horizontal Irradiance)
 

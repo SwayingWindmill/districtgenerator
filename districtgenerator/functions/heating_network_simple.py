@@ -294,11 +294,9 @@ def calculate_soil_temperature(data, dt):
     weather["G"] = data.site["SunTotal"]  # Global radiation W/m^2
     weather["p"] = data.site["pressure"]  # air pressure hPa
 
-    # Calculate the total number of time steps in one year
-    num_timesteps = int(365 * (24 / dt))
-    # Create an array of times in hours, shifted so that the first time is 1 hour.
+    # Follow the actual weather horizon instead of assuming a full-year series.
+    num_timesteps = len(weather["T_air"])
     time_in_hours = 1 + np.arange(num_timesteps) * dt
-    # Calculate the hour-of-day values
     hours_year = time_in_hours % 24
 
     # Calculate the dew point temperature (Ts) using the Magnus formula:
@@ -379,7 +377,7 @@ def calculate_soil_temperature(data, dt):
     d = data.heat_grid_data["d_asph"]    # m asphalt layer thickness
     t = data.heat_grid_data["grid_depth"] # m installation depth beneath surface
     omega = 2 * np.pi / 365 / 24
-    time = np.arange(dt, 8760 + dt, dt)  # time array in hours
+    time = np.arange(1, num_timesteps + 1) * dt  # time array in hours
 
     if data.heat_grid_data["asphaltlayer"] == 0:  # no asphalt
         weather["T_soil"] = Ts_mean - Ts_amp * np.exp(-t / delta_soil) * np.cos(omega * time - Ts_phase - t / delta_soil)

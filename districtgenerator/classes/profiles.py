@@ -343,6 +343,8 @@ class Profiles:
         temperature_difference = [T for T in temperature_difference_day for _ in range(24)]
         self.temperature_difference = chres.changeResolution(temperature_difference, 3600, self.time_resolution, "mean")
 
+        required_steps = int(self.nb_days * 24 * 3600 / self.time_resolution)
+
         dhw_profile = OpenDHW.generate_dhw_profile(
             s_step=60,
             categories=1,
@@ -357,7 +359,7 @@ class Profiles:
         dhw_timeseries = OpenDHW.resample_water_series(dhw_profile, self.time_resolution)
         dhw_heat = OpenDHW.compute_heat(timeseries_df=dhw_timeseries, temp_dT=self.temperature_difference)
 
-        return dhw_heat["Heat_W"].values
+        return dhw_heat["Heat_W"].values[:required_steps]
 
     def generate_el_profile_residential(self, holidays, irradiance, el_wrapper, annual_demand, do_normalization=True):
         """
